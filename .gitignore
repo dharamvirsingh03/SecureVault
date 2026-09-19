@@ -1,0 +1,53 @@
+# Gradle
+.gradle/
+**/build/
+
+# Android Studio / IntelliJ
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Local configuration
+local.properties
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Generated APK/AAB
+*.apk
+*.aab
+
+# Temporary files
+*.tmp
+*.temp
+
+# Kotlin/Java
+.kotlin/
+
+# SecureVault personal/runtime data
+*.securevault
+**/securevault-data/
+**/vault/
+**/backups/
+
+# IDE
+.externalNativeBuild/
+.cxx/
+
+# Secrets / credentials
+.env
+.env.*
+*.key
+*.pem
+*.p12
+*.jks
+*.keystore
+
+# Test/user data
+test-data/
+test-vault/

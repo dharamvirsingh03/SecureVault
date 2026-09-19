@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+      Permission budget, reviewed 2026-09-14.
+
+      INTERNET is declared for exactly one optional feature: the k-anonymity breach-check lookup,
+      which is off by default. Nothing else in the app opens a socket. If you fork this and drop
+      breach checking, remove this line and the app becomes provably offline.
+
+      CAMERA is declared for offline TOTP QR enrolment only. It is requested at runtime from the
+      scanner screen, never at startup, and the camera is not opened until the user has chosen to
+      scan. The feature is marked not-required so devices without a camera can still install.
+
+      POST_NOTIFICATIONS was previously declared and removed: the app posts no notifications, and
+      a permission that nothing uses is just a question the user is asked for no reason.
+    -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+
+    <application
+        android:name=".SecureVaultApp"
+        android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="false"
+        android:hasFragileUserData="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.SecureVault">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustResize"
+            android:theme="@style/Theme.SecureVault">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!--
+          Autofill authentication and save confirmation.
+
+          Both are launchMode="standard" on purpose: they must return a result to the platform via
+          setResult, which singleTask does not deliver reliably. Neither is exported: the only
+          thing that starts them is a PendingIntent this app created.
+        -->
+        <activity
+            android:name=".feature.autofill.AutofillAuthActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:windowSoftInputMode="adjustResize"
+            android:theme="@style/Theme.SecureVault" />
+
+        <activity
+            android:name=".feature.autofill.AutofillSaveActivity"
+            android:exported="false"
+            android:excludeFromRecents="true"
+            android:noHistory="true"
+            android:windowSoftInputMode="adjustResize"
+            android:theme="@style/Theme.SecureVault" />
+
+        <!--
+          Hands a temporarily decrypted attachment to an external viewer.
+
+          Not exported, grant-uri-permissions only, and scoped by file_paths.xml to a single cache
+          subdirectory. The app-private vault storage is not reachable through it. Each grant is
+          for one file and is revoked when the viewer is done; the directory is purged on lock and
+          at startup.
+        -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.attachments"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
+
+        <service
+            android:name=".feature.autofill.SecureVaultAutofillService"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_AUTOFILL_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.autofill.AutofillService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.autofill"
+                android:resource="@xml/autofill_service" />
+        </service>
+    </application>
+</manifest>

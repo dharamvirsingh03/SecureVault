@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SecureVault</string>
+    <string name="autofill_unlock_prompt">Unlock SecureVault to fill</string>
+    <string name="autofill_service_summary">Fills usernames and passwords from your encrypted vault. Requires the vault to be unlocked.</string>
+</resources>

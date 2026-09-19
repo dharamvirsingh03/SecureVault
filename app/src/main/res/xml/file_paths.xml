@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Exactly one shared path, and it is a cache subdirectory used only while an external viewer has an
+  attachment open. Nothing in files/ is exposed: the vault database, the header and the encrypted
+  attachment store are deliberately not reachable through this provider.
+-->
+<paths>
+    <cache-path name="attachment_view" path="attachment-view/" />
+</paths>

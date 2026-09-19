@@ -1,0 +1,95 @@
+# ---------------------------------------------------------------------------------------------
+# Version catalog.
+#
+# Versions marked CONFIRMED were checked against upstream release notes on 2026-09-14.
+# Versions marked UNCONFIRMED could not be resolved because this build environment has no access
+# to Google Maven or Maven Central. Check them before the first build. They are best-known
+# values, not verified ones, and saying otherwise would be dishonest.
+# ---------------------------------------------------------------------------------------------
+[versions]
+# CONFIRMED. AGP 9.4 (September 2026) supports API level 37. Compose 1.12 requires AGP >= 9.1.1,
+# and API 37 support only landed in AGP 9.3, so 9.1.1 alone is not sufficient here.
+agp = "9.4.0"
+
+# CONFIRMED. Kotlin 2.3.20. Kotlin 2.4.0 exists but KSP and AGP tooling around 2.3.x is what is
+# actually widespread; a password manager is the wrong place to be first.
+kotlin = "2.3.20"
+
+# CONFIRMED. KSP moved to decoupled versioning: KSP 2 releases are plain 2.3.x and track the
+# Kotlin 2.3 line. 2.3.11 is the current release (2026-08-03). The old "2.2.21-2.0.5" shape is
+# KSP 1 and is deprecated.
+ksp = "2.3.11"
+
+# CONFIRMED. Compose 1.12. Requires compileSdk 37 and AGP >= 9.1.1 (see agp above).
+composeBom = "2026.08.00"
+
+# CONFIRMED. Current Room 2.x line. Room 3.0 is alpha only and lives in a different package
+# (androidx.room3) with a different schema surface -- deliberately not used, because migrating
+# the package would change the storage layer of a vault that already has a defined format.
+room = "2.8.4"
+
+# CONFIRMED. com.lambdapioneer.argon2kt:argon2kt, last published 2024-09-06. See the dependency
+# note in README.md: this is the only native dependency and it has not moved in two years.
+argon2kt = "1.6.0"
+
+# UNCONFIRMED -- verify all of the following before building.
+coreKtx = "1.15.0"
+lifecycle = "2.8.7"
+activityCompose = "1.9.3"
+fragment = "1.8.5"
+biometric = "1.2.0-alpha05"
+zxing = "3.5.3"
+cameraX = "1.4.0"
+mlkitBarcode = "17.3.0"
+# UNCONFIRMED. Required by :core for withContext/Dispatchers and StateFlow. Android already
+# pulls coroutines transitively via lifecycle and room-ktx; Gradle resolves to the higher of
+# the two, so this pin only matters for :core and the future :desktop.
+kotlinxCoroutines = "1.9.0"
+# --- desktop only. UNCONFIRMED: no repository access here to resolve them. ---
+composeDesktop = "1.7.3"     # JetBrains Compose Multiplatform (desktop)
+bouncycastle = "1.79"        # pure-Java Argon2id, no JNI
+sqliteJdbc = "3.47.1.0"      # bundles linux-x86_64 natives
+pdfbox = "3.0.3"             # recovery kit PDF
+junit = "4.13.2"
+json = "20240303"
+
+[libraries]
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
+androidx-fragment-ktx = { group = "androidx.fragment", name = "fragment-ktx", version.ref = "fragment" }
+androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }
+androidx-lifecycle-viewmodel-compose = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "lifecycle" }
+androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycle" }
+androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
+androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-compose-material-icons = { group = "androidx.compose.material", name = "material-icons-extended" }
+androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+androidx-biometric = { group = "androidx.biometric", name = "biometric-ktx", version.ref = "biometric" }
+argon2kt = { group = "com.lambdapioneer.argon2kt", name = "argon2kt", version.ref = "argon2kt" }
+zxing-core = { group = "com.google.zxing", name = "core", version.ref = "zxing" }
+camera-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "cameraX" }
+camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "cameraX" }
+camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "cameraX" }
+mlkit-barcode = { group = "com.google.mlkit", name = "barcode-scanning", version.ref = "mlkitBarcode" }
+kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
+bouncycastle = { group = "org.bouncycastle", name = "bcprov-jdk18on", version.ref = "bouncycastle" }
+sqlite-jdbc = { group = "org.xerial", name = "sqlite-jdbc", version.ref = "sqliteJdbc" }
+pdfbox = { group = "org.apache.pdfbox", name = "pdfbox", version.ref = "pdfbox" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+json = { group = "org.json", name = "json", version.ref = "json" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+# kotlin-android removed: AGP 9 provides Kotlin support built in and rejects an explicit apply.
+# The "kotlin" version below is still required -- kotlin-compose is versioned against it.
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+# No kotlin-jvm alias. A catalog plugin alias always carries a version, and :core must apply
+# org.jetbrains.kotlin.jvm WITHOUT one -- AGP 9 already supplies the Kotlin Gradle Plugin on the
+# shared buildscript classpath. See the comment in core/build.gradle.kts.
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+compose-desktop = { id = "org.jetbrains.compose", version.ref = "composeDesktop" }

@@ -1,239 +1,295 @@
-# SecureVault
+# 🔐 SecureVault
 
-A local-first, offline-first Android password manager. No account, no server, no telemetry. The
-encrypted vault lives on the device and only the person holding the master password can read it.
+**SecureVault is a local-first, offline-first password manager for Android and Ubuntu/Linux.**
 
-Read [SECURITY.md](SECURITY.md) first if you care about the crypto. It describes the key hierarchy,
-the file formats, the recovery design and an honest threat model, including what this app does
-**not** protect against.
+Your vault is encrypted locally on your device. There is no account, cloud server, cloud sync, advertising, analytics, or telemetry.
 
-## Status, stated plainly
+> **Security first:** SecureVault is designed so that your master password never leaves the device and sensitive vault data is stored encrypted.
 
-**BUILD NOT VERIFIED.** This project has never been compiled. The development environment has no
-Android SDK and no access to Google Maven or Maven Central, so `assembleDebug` and
-`testDebugUnitTest` cannot be run here. Known configuration errors have been fixed and dependency
-versions researched against upstream release notes, but "the build script is now correct" is a
-claim about review, not about a green build. Treat the first `./gradlew assembleDebug` as real
-work.
+---
 
-The security-critical code is complete and self-contained; the UI is deliberately the thinner half.
+## ✨ Features
 
-Statuses below mean exactly this, and nothing is upgraded on optimism:
+### 🔐 Security
 
-- **Implemented** — code exists and has been reviewed. Not compiled, not executed.
-- **Tests written** — automated tests exist in `app/src/test/` covering the stated property.
-  **They have never been compiled or run.** A written test shows a property was thought about and
-  expressed; it does not show the property holds.
-- **Unit tested** — tests exist *and have executed successfully*. **Nothing in this project
-  carries this status.**
-- **Device tested** — actually run on an Android device or emulator. **Nothing carries this
-  status either.**
+- AES-256-GCM authenticated encryption
+- Argon2id key derivation
+- PBKDF2-HMAC-SHA256 fallback for supported vault creation scenarios
+- HKDF-SHA256 key hierarchy
+- Random per-vault encryption keys
+- Encrypted database records
+- Encrypted attachments
+- Automatic locking
+- Android biometric unlock
+- Recovery code support
+- Clipboard auto-clear
+- Optional password breach checking using k-anonymity
+- No plaintext passwords stored on disk
+- No analytics or tracking
 
-| Area | State |
-|---|---|
-| AEAD, HKDF, chunked stream cipher, key hierarchy | Implemented; tests written |
-| AEAD failure handling: uniform, non-distinguishable errors | Implemented; tests written |
-| KDF policy: full four-case matrix, no silent downgrade, no migration path | Implemented; tests written (one row needs a device) |
-| Password strength analysis without materialising a String | Implemented; tests written |
-| Restore boundary: verification separate, staging only, bounded extraction, traversal guards | Implemented; tests written |
-| Argon2id + PBKDF2 compatibility KDF, device calibration | Implemented |
-| Vault state: absent / present / corrupt | Implemented; tests written |
-| Durable header writes, confirm-then-delete `.prev`, announced rollback | Implemented; tests written |
-| Master password change: session required, rate limited, verified before commit | Implemented; tests written |
-| Vault shutdown and destruction ordering | Implemented; tests written |
-| Lockout policy, including fail-closed on unreadable counter state | Implemented; tests written |
-| Recovery code: entropy, CSPRNG, no disk plaintext, rate limiting, regeneration, survives password change | Implemented; tests written |
-| Biometric unlock via Keystore-wrapped vault key | Implemented; needs a device |
-| Auto-lock: timeout, background, screen-off, device-lock | Implemented; needs a device |
-| Encrypted storage: Room + per-record authenticated encryption | Implemented |
-| Attachments: chunked encryption, size limit | Implemented |
-| TOTP: RFC 6238, SHA-1/256/512, 6/8 digits, otpauth parsing | Implemented; tests written against RFC 6238 vectors |
-| Offline QR scan with runtime camera permission | Implemented, not reachable from the UI yet |
-| Generators: password, passphrase, strength estimator | Implemented; tests written |
-| CSV parser and format detection | Implemented; tests written |
-| CSV import pipeline, export with blocking warning | Implemented |
-| `.securevault` backup format v2: confidentiality, integrity, versioning, KDF preservation | Implemented; tests written |
-| Backup verification (decrypt and check, writing nothing) | Implemented; tests written |
-| Emergency recovery kit PDF | Implemented |
-| Password health, k-anonymity breach check | Implemented |
-| Autofill: domain matching and field classification | Implemented; tests written |
-| Autofill: authentication round trip and save flow | Implemented, **not verified** — needs the platform framework |
-| Navigation: typed back stack, no secrets in routes | Implemented |
-| Vault home: search, favourites, recents, folders, type filters | Implemented |
-| Item editors for all ten creatable types (schema-driven) | Implemented |
-| Item detail: masked fields, reveal, copy, live TOTP, attachments | Implemented |
-| Folder and tag management | Implemented |
-| Import wizard (detect, map, preview, duplicates, summary) | Implemented |
-| Backup, verify, CSV export, emergency kit, recovery, change password, delete vault screens | Implemented |
-| Security dashboard with per-category drill-downs | Implemented |
-| Backup restore as a new vault: stage, validate, preview, journalled ordered commit, reopen locked | Implemented; tests written |
-| Interrupted-restore recovery journal | Implemented; tests written |
-| Restore *replacing* an existing vault | Not implemented by design — back up, delete, then restore |
-| QR scan preview and confirm, malformed-code handling | Implemented; tests written for parsing; camera needs a device |
-| Generator to login handoff | Implemented |
-| CSV export scope: entire vault, folder, selected items | Implemented |
-| Clipboard: 15/30/60/Never with confirmation | Implemented |
-| Biometric invalidation explanation and recovery path | Implemented; needs a device |
-| Attachment in-app view via scoped FileProvider | Implemented; needs a device |
-| Dedicated backup-verification and restore failure states | Implemented |
-| Accessibility pass: merged row semantics, 48dp targets, live regions | Implemented; needs a screen reader |
-| Passkeys | Not implemented. See below |
-| Instrumented tests | Not written |
+### 📱 Android
 
-On **passkeys**: **the passkey storage model exists; passkey provider functionality is not
-implemented.** Real support means Android's Credential Manager provider APIs, which is separate
-work with its own attestation and UI requirements. Modelling it is not implementing it, and
-pretending otherwise in a password manager would be the wrong kind of shortcut.
+- Android 9 (API 28) and newer
+- Passwords / logins
+- Secure notes
+- Credit/debit cards
+- Identities
+- Wi-Fi credentials
+- API keys
+- TOTP / authenticator codes
+- Folders and tags
+- Favourites and recent items
+- Search
+- Password generator
+- Passphrase generator
+- Password health analysis
+- CSV import/export
+- Encrypted backups
+- Emergency recovery kit
+- QR-code support for TOTP
+- Android Autofill
+- Biometric unlock
+- Attachment storage and viewing
+- Screenshot protection with Android `FLAG_SECURE`
 
-## First build
+### 🐧 Ubuntu / Linux
 
-**Nothing here has been built.** The commands below are what should work, not what did.
+- Native desktop application
+- Compose Desktop UI
+- Ubuntu `.deb` package
+- Local SQLite storage
+- XDG-compatible application data
+- Optional Linux Secret Service integration
+- Clipboard support
+- Automatic locking
+- Encrypted attachments
+- TOTP
+- Password generator
+- Password health
+- CSV import/export
+- Backup and restore
+- Emergency recovery kit
+- Same portable `.securevault` backup format as Android
 
-### Required
+---
 
-| | Requirement | Why |
-|---|---|---|
-| Android Studio | Recent stable able to run AGP 9.4 | |
-| JDK | 17 or newer (21 is fine) | `compileOptions` targets Java 17; AGP 9 needs 17+ |
-| Gradle | **9.x** — AGP 9.4 requires it | An earlier draft of this file said 8.14. That was wrong |
-| Gradle wrapper | **Not present in this repository** | Must be generated before `./gradlew` exists |
-| Android SDK platform | **API 37** | `compileSdk = 37`, required by Compose 1.12 (BOM 2026.08.00) |
-| Build-tools | Whatever the SDK manager pairs with API 37 | |
-| `compileSdk` | 37 | Compose 1.12 |
-| `targetSdk` | 36 | Deliberately one behind: targeting a platform whose behaviour changes have never been tested on a device is a claim this project cannot back |
-| `minSdk` | 28 (Android 9) | StrongBox, `setUnlockedDeviceRequired`, and `BiometricPrompt` with a `CryptoObject` all arrived there |
-| Device or emulator | API 28 or newer | |
+# 🔄 Portable Vault Backups
 
-Install the API 37 platform first. `compileSdk` will not resolve without it.
+SecureVault uses a single encrypted:
 
-### Commands
+```text
+.securevaultbackup format.
 
-The wrapper does not exist yet, so **`./gradlew` will fail until you create it.** Either open the
-project in Android Studio and let it generate one, or:
+The goal is to allow the same encrypted backup to move between platforms:
 
-```bash
-gradle wrapper --gradle-version 9.3.1
-```
+Android
+   ↕
+.securevault
+   ↕
+Ubuntu / Linux
 
-Then:
+The backup contains encrypted vault data and preserves the vault's KDF parameters.
 
-```bash
-./gradlew :app:assembleDebug
+Important
+
+Cross-platform interoperability should be considered verified only after testing a real backup between the Android and Linux applications.
+
+🛡️ Security Model
+
+SecureVault uses a layered key hierarchy:
+
+Master Password
+       │
+       ▼
+    Argon2id
+       │
+       ▼
+      KEK
+       │
+       ▼
+Encrypted VEK
+       │
+       ▼
+Vault Encryption Key
+       │
+       ▼
+HKDF-SHA256
+       │
+       ├── Vault data
+       ├── Attachments
+       └── Other encrypted data
+
+Sensitive item information—including titles, usernames, URLs, tags, folders and item types—is kept inside encrypted payloads rather than stored as plaintext database fields.
+
+For the complete security design, threat model, cryptographic details and known limitations, see:
+
+SECURITY.md
+
+📦 Downloads
+Android
+
+Download the Android APK from the GitHub Releases section.
+
+SecureVault-Android-v1.0.0.apk
+
+Android version:
+
+Android 9 / API 28+
+Ubuntu / Linux
+
+Download the .deb package from GitHub Releases:
+
+securevault_1.0.0-1_amd64.deb
+
+Install:
+
+sudo apt install ./securevault_1.0.0-1_amd64.deb
+
+Launch SecureVault from the Ubuntu Applications menu.
+
+🖥️ Linux Security Notes
+
+Linux does not provide an equivalent to Android's FLAG_SECURE.
+
+Therefore SecureVault does not claim to prevent screenshots or screen capture on Linux.
+
+Linux biometric/hardware-backed key storage is also not assumed where the platform cannot provide it securely.
+
+When available, Linux Secret Service can store the wrapped vault key for convenience unlock. SecureVault does not fall back to storing the plaintext vault key in a normal file.
+
+See DESKTOP.md for Linux-specific details.
+
+🔑 Supported Vault Data
+
+SecureVault supports:
+
+🔑 Login credentials
+💳 Payment cards
+👤 Identities
+📝 Secure notes
+📶 Wi-Fi credentials
+🔌 API keys
+🔐 TOTP authenticator entries
+📎 Encrypted attachments
+📁 Folders
+🏷️ Tags
+🔄 Import & Export
+
+SecureVault supports:
+
+CSV import
+CSV export
+Encrypted .securevault backup
+Backup verification
+Restore as a new vault
+Emergency recovery kit
+
+CSV files contain plaintext data, so treat them as sensitive files and delete them securely after use.
+
+🚧 Current Status
+Android
+✅ Project builds successfully
+✅ Unit tests execute successfully
+✅ Debug APK builds successfully
+✅ Tested during development on a real Android device
+⚠️ A production-signed release build should be used for final distribution
+Ubuntu / Linux
+✅ Desktop project compiles
+✅ Desktop tests execute
+✅ Desktop application launches
+✅ .deb package generated
+⚠️ Real Android ↔ Ubuntu .securevault interoperability still needs final end-to-end verification
+Security
+
+The cryptographic design and security-sensitive implementation are documented in:
+
+SECURITY.md
+
+SecureVault has not undergone an independent professional security audit.
+
+🧪 Testing
+
+Android:
+
+./gradlew :core:test
 ./gradlew :app:testDebugUnitTest
-```
+./gradlew :app:assembleDebug
 
-There are no instrumented tests yet, so `./gradlew :app:connectedDebugAndroidTest` would do
-nothing. Once they exist, that is the command.
+Ubuntu:
 
-### Troubleshooting the first build
+./gradlew :desktop:test
+./gradlew :desktop:run
+./gradlew :desktop:packageDeb
+🏗️ Project Structure
+SecureVault/
+├── app/          Android application
+├── core/         Shared crypto, vault and business logic
+├── desktop/      Ubuntu/Linux desktop application
+├── gradle/       Gradle configuration
+├── README.md
+├── SECURITY.md
+├── DESKTOP.md
+└── DEVICE_TESTS.md
 
-**Dependency resolution.** Ten versions in `gradle/libs.versions.toml` are marked UNCONFIRMED
-because the environment this was written in had no access to Google Maven or Maven Central. They
-are best-known values, not resolved ones. If Gradle cannot find one, fix that one — do not start
-sweeping versions, because the first real build is the only source of truth about what is
-compatible here.
+The shared core module is intended to keep the vault engine and portable backup format independent of Android or Linux.
 
-**API 37.** `compileSdk = 37` is not optional with the current Compose BOM. Dropping to 36 means
-dropping the Compose version too; do not change one without the other.
+🔒 Privacy
 
-**Argon2 native library.** `argon2kt` ships JNI `.so` files and its own README reports
-`UnsatisfiedLinkError` on some devices and ABI configurations. If it fails to load, the behaviour
-is deliberate and unchanged:
+SecureVault does not require:
 
-| Situation | What happens |
-|---|---|
-| New vault, Argon2 loads | Argon2id, calibrated to the device, no warning |
-| New vault, Argon2 will not load | PBKDF2, **with an explicit warning shown at the moment the vault is created** |
-| Existing Argon2id vault, Argon2 will not load | **Refuses to unlock.** Never falls back. The message says the data is intact and not to create a new vault |
-| Existing PBKDF2 vault | PBKDF2, always |
+An account
+Cloud storage
+Cloud synchronization
+Advertising
+Analytics
+Crash reporting
+Telemetry
 
-If you see the PBKDF2 warning on a device you expected Argon2 to work on, check your ABI splits
-before accepting it. There is no upgrade path from a PBKDF2 vault to an Argon2id one.
+The optional password breach check is the only network-dependent feature.
 
-### Recommended additions
+⚠️ Important
 
-Drop the EFF large wordlist at `app/src/main/assets/eff_large_wordlist.txt` (7776 words, 12.9 bits
-per word). The passphrase generator picks it up automatically and reports the higher entropy. Until
-then it uses a small bundled list and reports the smaller, truthful number.
+SecureVault is a personal/open-source project and should not yet be considered a professionally audited password manager.
 
-## Project structure
+Before storing important credentials:
 
-```
-app/src/main/java/app/securevault/
-├── core/
-│   ├── crypto/      Aead, Hkdf, Kdf, StreamAead, KeyHierarchy, BiometricKeyStore, RandomSource
-│   ├── vault/       VaultManager, VaultSession, VaultMetadata, LockoutPolicy, AutoLockController
-│   └── model/       Item types, payloads, canonical field keys
-├── data/
-│   ├── db/          Room entities and DAOs. Ciphertext only
-│   ├── repo/        ItemRepository (seal/open), VaultIndex (in-memory search)
-│   └── attachments/ Encrypted file store
-├── feature/
-│   ├── totp/        RFC 6238 engine, otpauth URIs, offline QR scanner
-│   ├── generator/   Passwords, passphrases, strength estimation
-│   ├── csv/         RFC 4180 parser, format detection, import, export
-│   ├── backup/      .securevault container
-│   ├── recovery/    Emergency recovery kit PDF
-│   ├── health/      Health analysis, k-anonymity breach check
-│   └── autofill/    Android Autofill provider
-├── platform/        SecureClipboard, SecureScreen, SealedStore
-├── ui/              Compose screens and the single view model
-└── di/              ServiceLocator
-```
+Read SECURITY.md.
+Understand the recovery process.
+Keep multiple encrypted backups.
+Test restoring a backup.
+Do not lose your master password.
+Do not share your .securevault backup or recovery credentials.
+📄 Documentation
+Security Model
+Desktop / Ubuntu Documentation
+Device Testing Checklist
+License
 
-## Design decisions worth knowing
+See the repository license information.
 
-**Everything sensitive is inside the encrypted payload.** Not just passwords — titles, usernames,
-URLs, tags, folders and item type too. The database holds a random UUID, three timestamps and a
-ciphertext blob. Someone with the database file learns your item count and nothing else.
 
-**Search decrypts into memory and clears on lock.** There is no plaintext search index on disk,
-because an index outside the vault recreates exactly the data the encryption exists to hide and
-survives locking. Secret fields are excluded from searchable text, so the search box cannot be
-turned into an oracle for a password.
+### I would make one small change before publishing
 
-**The recovery code is a trade-off, not a free safety net.** Enabling it means the code is an
-alternative to your master password. The app explains this before you enable it rather than after
-you regret it.
+Your current README says **“BUILD NOT VERIFIED”** and **“Nothing has run on a device”**, which is now outdated based on the actual builds you've performed. :contentReference[oaicite:1]{index=1}
 
-**No analytics, no crash reporting, no ads, no account.** There is no SDK to disable because none
-is present. The single network call is the optional breach check, which is off until you turn it
-on.
+The replacement above fixes that and separates the documentation properly:
 
-**CSV is treated as dangerous, because it is.** Export is behind a blocking warning. Import warns
-about the source file and never copies it into app storage.
+- **README.md** → what SecureVault is and how to use/download it
+- **SECURITY.md** → detailed cryptography/security
+- **DESKTOP.md** → Ubuntu/Linux-specific implementation and limitations
+- **DEVICE_TESTS.md** → detailed testing checklist
 
-## Device testing
+I also deliberately **did not claim Android ↔ Ubuntu interoperability is verified**, because your own testing history has not yet demonstrated both directions with real `.securevault` backups.
 
-Nothing has run on a device. [DEVICE_TESTS.md](DEVICE_TESTS.md) is the checklist for the first
-real validation, ordered so the things that could lose data get found first. The single most
-important item on it is killing the process mid-restore-commit and confirming the journal leaves
-either no vault or a complete one.
+### Easiest way to replace your README
 
-## Before you trust this with real passwords
+From the SecureVault (14) project:
 
-1. Build it, run the tests, read `SECURITY.md`.
-2. Have someone who does this for a living review the crypto. Self-review is not review.
-3. Write instrumented tests for what the JVM cannot reach. In rough order of how much damage the
-   untested behaviour could do:
+```bash
+nano README.md
 
-   | Area | What needs proving on a device |
-   |---|---|
-   | **Restore interruption** | Kill the process at each write step and confirm the journal rule leaves either no vault or a complete one — never something in between. The JVM cannot kill a process mid-write, so this is genuinely untested today |
-   | Keystore and biometrics | Key invalidation on new enrolment, StrongBox fallback, `setUnlockedDeviceRequired` |
-   | Autofill | The `EXTRA_AUTHENTICATION_RESULT` round trip against Chrome, Firefox and a native app. Implemented, completely unexercised |
-   | FileProvider | That the grant works, is scoped, and that no viewer can reach anything else |
-   | Clipboard | `EXTRA_IS_SENSITIVE`, and that clearing actually happens |
-   | Device-lock polling | `KeyguardManager.isDeviceLocked` on real lock and unlock |
-   | Camera and QR | ML Kit decoding, runtime permission flow |
-   | Process death | State restoration, and that no secret survives it |
-   | Accessibility | TalkBack traversal of the security warnings |
-   | Durable writes | Whether `fd.sync()` and the directory fsync behave on the target filesystem |
-4. Test restore on a second device before relying on a backup. An untested backup is not a backup.
-5. Consider what you actually need. Bitwarden and KeePassDXC are open source, audited and free.
-   Building your own is an excellent way to learn and a demanding way to store your bank password.
+Delete the existing contents, paste the README above, then:
 
-## Licence
-
-No licence file is included. Add one before distributing. If you publish this, publish the source —
-a closed-source password manager asks for trust it cannot demonstrate.
+git add README.md
+git commit -m "Improve project README"
+git push

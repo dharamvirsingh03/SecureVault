@@ -265,30 +265,7 @@ Desktop / Ubuntu Documentation
 Device Testing Checklist
 License
 
-See the repository license information.
 
-
-### I would make one small change before publishing
-
-Your current README says **“BUILD NOT VERIFIED”** and **“Nothing has run on a device”**, which is now outdated based on the actual builds you've performed. :contentReference[oaicite:1]{index=1}
-
-The replacement above fixes that and separates the documentation properly:
-
-- **README.md** → what SecureVault is and how to use/download it
-- **SECURITY.md** → detailed cryptography/security
-- **DESKTOP.md** → Ubuntu/Linux-specific implementation and limitations
-- **DEVICE_TESTS.md** → detailed testing checklist
-
-I also deliberately **did not claim Android ↔ Ubuntu interoperability is verified**, because your own testing history has not yet demonstrated both directions with real `.securevault` backups.
-
-### Easiest way to replace your README
-
-From the SecureVault (14) project:
-
-```bash
-nano README.md
-
-Delete the existing contents, paste the README above, then:
 
 git add README.md
 git commit -m "Improve project README"
